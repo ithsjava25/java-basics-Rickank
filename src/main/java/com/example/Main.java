@@ -8,6 +8,6 @@ public class Main {
 
         elpriserAPI.getPriser("2025-09-24", ElpriserAPI.Prisklass.SE2);
 
-        System.out.print();
+        System.out.print(); test commit
     }
 }
