@@ -1,13 +1,21 @@
 package com.example;
 
-import com.example.api.ElpriserAPI;
-
 public class Main {
     public static void main(String[] args) {
-        ElpriserAPI elpriserAPI = new ElpriserAPI();
+        if (args.length == 0 || (args.length == 1 && args[0].equals("--help"))) {
+            help();
+            return;
 
-        elpriserAPI.getPriser("2025-09-24", ElpriserAPI.Prisklass.SE2);
+        }
+        System.out.println("Elprisoptimeraren");
+    }
 
-        System.out.print(); test commit
+    //Expected CLI arguments
+    private static void help() {
+        System.out.println("Commands:\n" +
+                "--zone SE1|SE2|SE3|SE4 (required)\n" +
+                "--date YYYY-MM-DD\n" +
+                "--sorted\n" +
+                "--help");
     }
 }
