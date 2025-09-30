@@ -3,73 +3,84 @@ package com.example;
 import com.example.api.ElpriserAPI;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
-
 
 public class Main {
 
     public static void main(String[] args) {
         try {
+            // sätt svensk locale för datum och text
+            Locale.setDefault(new Locale("sv", "SE"));
+
             ElpriserAPI elpriserAPI = new ElpriserAPI();
             ElpriserAPI.Prisklass zon = null;
 
-            // defaultvärden
-
             LocalDate date = LocalDate.now();
-            int window = 24;
-            boolean sorted = false;
 
             if (args.length == 0) {
-                System.out.println("Usage:");
+                System.out.println("Usage: ");
                 help();
                 return;
-
             } else if (args.length == 1 && args[0].equals("--help")) {
                 help();
                 return;
-
             } else {
                 if (args.length < 2) {
                     System.out.println("Zone required");
                     return;
                 }
 
+                // validera zoner
                 if (args[0].equals("--zone")) {
                     if (!Pattern.matches("^SE[1-4]$", args[1])) {
                         System.out.println("Invalid zone");
                         return;
                     }
                     zon = ElpriserAPI.Prisklass.valueOf(args[1]);
+                    boolean validArgs = true;
 
-                    // hämtar priserna från API
-
-                    List<ElpriserAPI.Elpris> pricesForDate = priceOnDate(elpriserAPI, zon, date);
-
-                    if (pricesForDate == null || pricesForDate.isEmpty()) {
-                        System.out.println("No data available for " + date);
-                        return;
-                    } else {
-                        System.out.println("Fetched " + pricesForDate.size() + " prices for " + date);
-
-                        // lägga till kod för  --date, --charging, --sorted
+                    // hantera ytterligare argument
+                    for (int i = 2; i < args.length; i++) {
+                        switch (args[i]) {
+                            case "--date" -> {
+                                if (i + 1 < args.length) {
+                                    date = checkDate(args[++i]);
+                                } else {
+                                    System.out.println("Missing value for --date");
+                                    validArgs = false;
+                                }
+                            }
+                            case "--sorted" -> {
+                            }
+                            default -> {
+                                System.out.println("Invalid argument " + args[i]);
+                                help();
+                                validArgs = false;
+                            }
+                        }
                     }
 
+                    if (validArgs) {
+                        System.out.println("Zone: " + zon + ", Date: " + date);
+                        // TODO: prishämtning
+                    }
                 } else {
                     System.out.println("Zone required");
-                    return;
                 }
             }
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
         }
     }
-
-    private static List<ElpriserAPI.Elpris> priceOnDate(ElpriserAPI elpriserAPI, ElpriserAPI.Prisklass zon, LocalDate date) {
-        List<ElpriserAPI.Elpris> res = elpriserAPI.getPriser(date, zon);
-        return res == null ? Collections.emptyList() : res;
+    // kollar datum, om ogiltlig printar dagens datum
+    private static LocalDate checkDate(String date) {
+        try {
+            return LocalDate.parse(date);
+        } catch (Exception e) {
+            System.out.println("Invalid date");
+            return LocalDate.now();
+        }
     }
 
     private static void help() {
