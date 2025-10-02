@@ -24,6 +24,7 @@ public final class ElpriserAPI {
     // Baskonstanter för API-anrop
     private static final String API_BASE_URL = "https://www.elprisetjustnu.se/api/v1/prices";
     private static final DateTimeFormatter URL_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM-dd");
+    public static ElpriserAPI elpriserAPI;
 
     // En återanvändbar HttpClient-instans
     private final HttpClient httpClient;
