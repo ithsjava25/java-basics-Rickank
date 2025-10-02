@@ -187,8 +187,8 @@ public class Main {
             String startStr = start.format(tf);
             String endStr = end.format(tf);
 
-            System.out.printf("Påbörja laddning kl %s-%s (Medelpris: %s öre)%n",
-                    startStr, endStr, meanStr);
+            System.out.printf("Påbörja laddning kl %s-%s%n", startStr, endStr);
+            System.out.printf("Medelpris för fönster: %s öre%n", meanStr);
         }
     }
 
