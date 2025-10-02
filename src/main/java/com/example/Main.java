@@ -182,12 +182,13 @@ public class Main {
 
             String meanStr = df.format(bestAvg * 100);
 
-            String timeRange = String.format("%02d-%02d",
-                    start.getHour(),
-                    end.getHour());
+            java.time.format.DateTimeFormatter tf = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 
-            System.out.printf("Påbörja laddning kl %s (Medelpris: %s öre)%n",
-                    timeRange, meanStr);
+            String startStr = start.format(tf);
+            String endStr = end.format(tf);
+
+            System.out.printf("Påbörja laddning kl %s-%s (Medelpris: %s öre)%n",
+                    startStr, endStr, meanStr);
         }
     }
 
@@ -200,4 +201,4 @@ public class Main {
                 "--help");
     }
 }
-// TODO: ändra språk 
+// TODO: ändra språk
