@@ -90,6 +90,15 @@ public class Main {
                         calculateAndDisplayStats(allPrices);
                         System.out.println("Alla priser:");
                         displayPrices(allPrices, args);
+
+                        // kolla om användaren fråga om charging optimization
+                        for (int i = 0; i < args.length; i++) {
+                            if (args[i].equals("--charging") && i + 1 < args.length) {
+                                String duration = args[i + 1];
+                                int hours = Integer.parseInt(duration.replace("h", ""));
+                                findBestChargingWindow(allPrices, hours);
+                            }
+                        }
                     }
                 } else {
                     System.out.println("Zone required");
@@ -138,6 +147,50 @@ public class Main {
         }
     }
 
+    // ny metod för charging optimization
+    private static void findBestChargingWindow(
+            java.util.List<ElpriserAPI.Elpris> prices,
+            int hours
+    ) {
+        if (prices.size() < hours) {
+            System.out.println("Inte tillräckligt med priser för att beräkna laddning");
+            return;
+        }
+
+        double bestAvg = Double.MAX_VALUE;
+        int bestIndex = -1;
+
+        // sliding window
+        for (int i = 0; i <= prices.size() - hours; i++) {
+            double sum = 0;
+            for (int j = 0; j < hours; j++) {
+                sum += prices.get(i + j).sekPerKWh();
+            }
+            double avg = sum / hours;
+            if (avg < bestAvg) {
+                bestAvg = avg;
+                bestIndex = i;
+            }
+        }
+
+        if (bestIndex >= 0) {
+            var start = prices.get(bestIndex).timeStart();
+            var end = prices.get(bestIndex + hours - 1).timeStart().plusHours(1);
+
+            var dfs = new java.text.DecimalFormatSymbols(new Locale("sv", "SE"));
+            var df = new java.text.DecimalFormat("0.00", dfs);
+
+            String meanStr = df.format(bestAvg * 100);
+
+            String timeRange = String.format("%02d-%02d",
+                    start.getHour(),
+                    end.getHour());
+
+            System.out.printf("Påbörja laddning kl %s (Medelpris: %s öre)%n",
+                    timeRange, meanStr);
+        }
+    }
+
     private static void help() {
         System.out.println("Commands:\n" +
                 "--zone SE1|SE2|SE3|SE4 (required)\n" +
@@ -147,4 +200,4 @@ public class Main {
                 "--help");
     }
 }
-// TODO: ändra till svenska? ser det bättre ut då (pga öre etc) trots slutet?
+// TODO: ändra språk 
